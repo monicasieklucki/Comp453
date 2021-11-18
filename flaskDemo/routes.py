@@ -3,8 +3,8 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort
 from flaskDemo import app, db, bcrypt
-from flaskDemo.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm, DeptForm,DeptUpdateForm
-from flaskDemo.models import User, Post,Department, Dependent, Dept_Locations, Employee, Project, Works_On
+from flaskDemo.forms import RegistrationForm, LoginForm #, UpdateAccountForm, PostForm, DeptForm,DeptUpdateForm
+from flaskDemo.models import User, Customer, CustomerOrder, Item, OrderLine, Payment
 from flask_login import login_user, current_user, logout_user, login_required
 from datetime import datetime
 
@@ -12,20 +12,19 @@ from datetime import datetime
 @app.route("/")
 @app.route("/home")
 def home():
-    results = Department.query.all()
-    return render_template('dept_home.html', outString = results)
-    posts = Post.query.all()
-    return render_template('home.html', posts=posts)
-    results2 = Faculty.query.join(Qualified,Faculty.facultyID == Qualified.facultyID) \
-               .add_columns(Faculty.facultyID, Faculty.facultyName, Qualified.Datequalified, Qualified.courseID) \
-               .join(Course, Course.courseID == Qualified.courseID).add_columns(Course.courseName)
-    results = Faculty.query.join(Qualified,Faculty.facultyID == Qualified.facultyID) \
-              .add_columns(Faculty.facultyID, Faculty.facultyName, Qualified.Datequalified, Qualified.courseID)
-    return render_template('join.html', title='Join',joined_1_n=results, joined_m_n=results2)
+    results = Item.query.all()
+    return render_template('home.html', results = results)
+    #posts = Post.query.all()
+    #return render_template('home.html', posts=posts)
+    #results2 = Faculty.query.join(Qualified,Faculty.facultyID == Qualified.facultyID) \
+   #            .add_columns(Faculty.facultyID, Faculty.facultyName, Qualified.Datequalified, Qualified.courseID) \
+   #            .join(Course, Course.courseID == Qualified.courseID).add_columns(Course.courseName)
+   # results = Faculty.query.join(Qualified,Faculty.facultyID == Qualified.facultyID) \
+   #           .add_columns(Faculty.facultyID, Faculty.facultyName, Qualified.Datequalified, Qualified.courseID)
+   #return render_template('join.html', title='Join',joined_1_n=results, joined_m_n=results2)
+   #return render_template('home.html', title='Home')
 
    
-
-
 @app.route("/about")
 def about():
     return render_template('about.html', title='About')
@@ -103,59 +102,100 @@ def account():
                            image_file=image_file, form=form)
 
 
-@app.route("/dept/new", methods=['GET', 'POST'])
-@login_required
-def new_dept():
-    form = DeptForm()
-    if form.validate_on_submit():
-        dept = Department(dname=form.dname.data, dnumber=form.dnumber.data,mgr_ssn=form.mgr_ssn.data,mgr_start=form.mgr_start.data)
-        db.session.add(dept)
-        db.session.commit()
-        flash('You have added a new department!', 'success')
-        return redirect(url_for('home'))
-    return render_template('create_dept.html', title='New Department',
-                           form=form, legend='New Department')
 
+@app.route("/shoppingcart")
+def shoppingcart():
+    return render_template('shoppingcart.html', title='Shopping Cart')
 
-@app.route("/dept/<dnumber>")
-@login_required
-def dept(dnumber):
-    dept = Department.query.get_or_404(dnumber)
-    return render_template('dept.html', title=dept.dname, dept=dept, now=datetime.utcnow())
+#ADD TO CART
+#@app.route("/dept/<dnumber>/update", methods=['GET', 'POST'])
+#@login_required
+#def update_dept(dnumber):
+#    dept = Department.query.get_or_404(dnumber)
+ 
+#    form = DeptForm()
+#    if form.validate_on_submit():
+#        dname=form.dname.data
+#        mgr_ssn=form.mgr_ssn.data
+#        mgr_start=form.mgr_start.data
+#        db.session.commit()
+#        flash('Your department has been updated!', 'success')
+#        return redirect(url_for('dept', dnumber=dnumber))
+#    elif request.method == 'GET':
+#        form.dnumber.data = dept.dnumber
+#        form.dname.data = dept.dname
+#        form.mgr_ssn.data = dept.mgr_ssn
+#        form.mgr_start.data = dept.mgr_start
+#    return render_template('create_dept.html', title='Update Department',
+#                           form=form, legend='Update Department')
 
+@app.route("/shoppingcart/<ItemID>/add")
+def add_item_to_cart(ItemID):
+    print("TEST")
+    print(ItemID)
+    #product = Product.query.filter(Product.id == product_id)
+    #cart_item = CartItem(product=product)
+    #db.session.add(cart_item)
+    #db.session.commit()
+    #results = Item.query.all()
 
-@app.route("/dept/<dnumber>/update", methods=['GET', 'POST'])
-@login_required
-def update_dept(dnumber):
-    dept = Department.query.get_or_404(dnumber)
-    currentDept = dept.dname
-
-    form = DeptUpdateForm()
-    if form.validate_on_submit():          # notice we are are not passing the dnumber from the form
-        if currentDept !=form.dname.data:
-            dept.dname=form.dname.data
-        dept.mgr_ssn=form.mgr_ssn.data
-        dept.mgr_start=form.mgr_start.data
-        db.session.commit()
-        flash('Your department has been updated!', 'success')
-        return redirect(url_for('dept', dnumber=dnumber))
-    elif request.method == 'GET':              # notice we are not passing the dnumber to the form
-
-        form.dnumber.data = dept.dnumber
-        form.dname.data = dept.dname
-        form.mgr_ssn.data = dept.mgr_ssn
-        form.mgr_start.data = dept.mgr_start
-    return render_template('create_dept.html', title='Update Department',
-                           form=form, legend='Update Department')
+    return render_template('shoppingcart.html')
 
 
 
+#@app.route("/dept/new", methods=['GET', 'POST'])
+#@login_required
+#def new_dept():
+#    form = DeptForm()
+#    if form.validate_on_submit():
+#        dept = Department(dname=form.dname.data, dnumber=form.dnumber.data,mgr_ssn=form.mgr_ssn.data,mgr_start=form.mgr_start.data)
+#        db.session.add(dept)
+#        db.session.commit()
+#        flash('You have added a new department!', 'success')
+#        return redirect(url_for('home'))
+#    return render_template('create_dept.html', title='New Department',
+#                           form=form, legend='New Department')
 
-@app.route("/dept/<dnumber>/delete", methods=['POST'])
-@login_required
-def delete_dept(dnumber):
-    dept = Department.query.get_or_404(dnumber)
-    db.session.delete(dept)
-    db.session.commit()
-    flash('The department has been deleted!', 'success')
-    return redirect(url_for('home'))
+
+#@app.route("/dept/<dnumber>")
+#@login_required
+#def dept(dnumber):
+#    dept = Department.query.get_or_404(dnumber)
+#    return render_template('dept.html', title=dept.dname, dept=dept, now=datetime.utcnow())
+
+
+#@app.route("/dept/<dnumber>/update", methods=['GET', 'POST'])
+#@login_required
+#def update_dept(dnumber):
+#    dept = Department.query.get_or_404(dnumber)
+#    currentDept = dept.dname
+
+#    form = DeptUpdateForm()
+#    if form.validate_on_submit():          # notice we are are not passing the dnumber from the form
+#        if currentDept !=form.dname.data:
+#            dept.dname=form.dname.data
+#        dept.mgr_ssn=form.mgr_ssn.data
+#        dept.mgr_start=form.mgr_start.data
+#        db.session.commit()
+#        flash('Your department has been updated!', 'success')
+#        return redirect(url_for('dept', dnumber=dnumber))
+#    elif request.method == 'GET':              # notice we are not passing the dnumber to the form
+
+#        form.dnumber.data = dept.dnumber
+#        form.dname.data = dept.dname
+#        form.mgr_ssn.data = dept.mgr_ssn
+#        form.mgr_start.data = dept.mgr_start
+#    return render_template('create_dept.html', title='Update Department',
+#                           form=form, legend='Update Department')
+
+
+
+
+#@app.route("/dept/<dnumber>/delete", methods=['POST'])
+#@login_required
+#def delete_dept(dnumber):
+#    dept = Department.query.get_or_404(dnumber)
+#    db.session.delete(dept)
+#    db.session.commit()
+#    flash('The department has been deleted!', 'success')
+#    return redirect(url_for('home'))
