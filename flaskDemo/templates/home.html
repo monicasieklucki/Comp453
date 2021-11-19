@@ -1,18 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
     {% for result in results %}
-        <article class="media content-section">
-          <!--<img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' ) }}">-->
+        <article class="media content-section" style="float: left; margin: 10px;">
           <div class="media-body">
-            <h2><a class="article-title" >{{ result.ItemName }}</a></h2>
+            <img src="/static/images/{{result.ItemImage}}" style="width:200px;height:200px;">
+            <h2><a class="article-title" >{{ result.ItemName }} </a></h2>
             <p class="article-content" style="float: left;">${{ result.ItemPrice }}</p>
             <a href="{{ url_for('add_item_to_cart', ItemID=result.ItemID) }}" type="button" class="btn btn-primary" style="float: right;">Add to Cart</a>
           </div>
         </article>
     {% endfor %}
 {% endblock content %}
-
-
-<script>
-  fetch('localhost:5000/shoppingcart/itemId')
-</script>

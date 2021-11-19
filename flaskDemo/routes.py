@@ -131,9 +131,8 @@ def shoppingcart():
 
 @app.route("/shoppingcart/<ItemID>/add")
 def add_item_to_cart(ItemID):
-    print("TEST")
-    print(ItemID)
-    #product = Product.query.filter(Product.id == product_id)
+
+    item = Item.query.filter(Item.ItemID == ItemID)
     #cart_item = CartItem(product=product)
     #db.session.add(cart_item)
     #db.session.commit()
