@@ -1,12 +1,15 @@
 import os
 import secrets
 from PIL import Image
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, Flask, session
 from flaskDemo import app, db, bcrypt
 from flaskDemo.forms import RegistrationForm, LoginForm #, UpdateAccountForm, PostForm, DeptForm,DeptUpdateForm
 from flaskDemo.models import User, Customer, CustomerOrder, Item, OrderLine, Payment
 from flask_login import login_user, current_user, logout_user, login_required
 from datetime import datetime
+
+
+
 
 
 @app.route("/")
@@ -129,10 +132,32 @@ def shoppingcart():
 #    return render_template('create_dept.html', title='Update Department',
 #                           form=form, legend='Update Department')
 
+
+@app.route("/delete_item/<ItemID>/delete")
+def delete_item(ItemID):
+    return render_template('shoppingcart.html')
+
+@app.route("/empty_cart")
+def empty_cart():
+    session.clear()
+    return render_template('shoppingcart.html')
+
+
 @app.route("/shoppingcart/<ItemID>/add")
 def add_item_to_cart(ItemID):
+    item = Item.query.get(ItemID)
 
-    item = Item.query.filter(Item.ItemID == ItemID)
+    #print(item.ItemID)
+    #print(item.ItemName)
+
+
+    if 'cart_item' in session:
+        dict = {"ItemID": item.ItemID, "ItemName": item.ItemName, "ItemPrice": float(item.ItemPrice), "ItemImage": item.ItemImage, "Quantity": float(1), "TotalPrice": (float(1) * float(item.ItemPrice))}
+        session["cart_item"].append(dict)
+    else:
+        session['cart_item'] = [{"ItemID": item.ItemID, "ItemName": item.ItemName, "ItemPrice": float(item.ItemPrice), "ItemImage": item.ItemImage, "Quantity": float(1), "TotalPrice": (float(1) * float(item.ItemPrice))}]
+
+
     #cart_item = CartItem(product=product)
     #db.session.add(cart_item)
     #db.session.commit()
