@@ -12,17 +12,6 @@ from wtforms.fields.html5 import DateField
 #  or could have used ssns = db.session.query(Department.mgr_ssn).distinct()
 # for that way, we would have imported db from flaskDemo, see above
 
-#myChoices2 = [(row[0],row[0]) for row in ssns]  # change
-#results=list()
-#for row in ssns:
-#    rowDict=row._asdict()
-#    results.append(rowDict)
-#myChoices = [(row['mgr_ssn'],row['mgr_ssn']) for row in results]
-#regex1='^((((19|20)(([02468][048])|([13579][26]))-02-29))|((20[0-9][0-9])|(19[0-9][0-9]))-((((0[1-9])'
-#regex2='|(1[0-2]))-((0[1-9])|(1\d)|(2[0-8])))|((((0[13578])|(1[02]))-31)|(((0[1,3-9])|(1[0-2]))-(29|30)))))$'
-#regex=regex1 + regex2
-
-
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
@@ -44,15 +33,22 @@ class RegistrationForm(FlaskForm):
         if user:
             raise ValidationError('That email is taken. Please choose a different one.')
 
-
 class LoginForm(FlaskForm):
-    email = StringField('Email',
-                        validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
+class CheckoutForm(FlaskForm):
+    def only_digits(form, field):
+        if not field.data.isdecimal():
+            raise ValidationError('Mobile number cannot contain letters.')
 
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    mobilePhone = StringField('Mobile' , validators=[DataRequired(), Length(10), only_digits])
+
+
+    submit = SubmitField('Place Your Order')
 
 
 #class UpdateAccountForm(FlaskForm):

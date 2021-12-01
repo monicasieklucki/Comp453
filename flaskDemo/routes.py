@@ -3,13 +3,10 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort, Flask, session
 from flaskDemo import app, db, bcrypt
-from flaskDemo.forms import RegistrationForm, LoginForm #, UpdateAccountForm, PostForm, DeptForm,DeptUpdateForm
+from flaskDemo.forms import RegistrationForm, LoginForm, CheckoutForm #, UpdateAccountForm, PostForm, DeptForm,DeptUpdateForm
 from flaskDemo.models import User, Customer, CustomerOrder, Item, OrderLine, Payment
 from flask_login import login_user, current_user, logout_user, login_required
 from datetime import datetime
-
-
-
 
 
 @app.route("/")
@@ -133,8 +130,19 @@ def shoppingcart():
 #                           form=form, legend='Update Department')
 
 
-@app.route("/delete_item/<ItemID>/delete")
-def delete_item(ItemID):
+@app.route("/delete_item/<ID>/delete")
+def delete_item(ID):
+    session['cart_item'].pop(int(ID))
+
+    if len(session['cart_item']) == 0:
+        session.clear()
+    return render_template('shoppingcart.html')
+
+@app.route("/update_qty/<ID>/update/<qty>", methods=['POST'])
+def update_qty(ID, qty):
+    #session['cart_item'].pop(int(ID))
+    print(ID)
+    print(qty)
     return render_template('shoppingcart.html')
 
 @app.route("/empty_cart")
@@ -147,16 +155,18 @@ def empty_cart():
 def add_item_to_cart(ItemID):
     item = Item.query.get(ItemID)
 
+    print("Add to cart")
+
     #print(item.ItemID)
     #print(item.ItemName)
-
+    #print(item.Quantity)
 
     if 'cart_item' in session:
-        dict = {"ItemID": item.ItemID, "ItemName": item.ItemName, "ItemPrice": float(item.ItemPrice), "ItemImage": item.ItemImage, "Quantity": float(1), "TotalPrice": (float(1) * float(item.ItemPrice))}
+        dict = {"ItemID": int(item.ItemID), "ItemName": item.ItemName, "ItemPrice": float(item.ItemPrice), "ItemImage": item.ItemImage, "Quantity": int(1), "TotalPrice": (int(1) * float(item.ItemPrice))}
+        cart = session['cart_item']
         session["cart_item"].append(dict)
     else:
-        session['cart_item'] = [{"ItemID": item.ItemID, "ItemName": item.ItemName, "ItemPrice": float(item.ItemPrice), "ItemImage": item.ItemImage, "Quantity": float(1), "TotalPrice": (float(1) * float(item.ItemPrice))}]
-
+        session['cart_item'] = [{"ItemID": int(item.ItemID), "ItemName": item.ItemName, "ItemPrice": float(item.ItemPrice), "ItemImage": item.ItemImage, "Quantity": int(1), "TotalPrice": (int(1) * float(item.ItemPrice))}]
 
     #cart_item = CartItem(product=product)
     #db.session.add(cart_item)
@@ -166,60 +176,44 @@ def add_item_to_cart(ItemID):
     return render_template('shoppingcart.html')
 
 
+@app.route("/checkout", methods=['GET', 'POST'])
+def checkout():
+    form = CheckoutForm()
+    print(form)
+    print("I'm here!")
+    print(form.validate_on_submit())
 
-#@app.route("/dept/new", methods=['GET', 'POST'])
-#@login_required
-#def new_dept():
-#    form = DeptForm()
+    print(form.errors)
+    if form.validate_on_submit():
+        print("Validated")
+        #hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        #user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        #db.session.add(user)
+        #db.session.commit()
+        flash('Your order has been placed!', 'success')
+        session['cart_item'].clear()
+        return redirect(url_for('home'))
+    return render_template('checkout.html', form=form)
+
+
+#@app.route("/order")
+#def order():
+    #flask message
+    #payment confirmation
+
+#    form = CheckoutForm()
 #    if form.validate_on_submit():
-#        dept = Department(dname=form.dname.data, dnumber=form.dnumber.data,mgr_ssn=form.mgr_ssn.data,mgr_start=form.mgr_start.data)
-#        db.session.add(dept)
-#        db.session.commit()
-#        flash('You have added a new department!', 'success')
-#        return redirect(url_for('home'))
-#    return render_template('create_dept.html', title='New Department',
-#                           form=form, legend='New Department')
-
-
-#@app.route("/dept/<dnumber>")
-#@login_required
-#def dept(dnumber):
-#    dept = Department.query.get_or_404(dnumber)
-#    return render_template('dept.html', title=dept.dname, dept=dept, now=datetime.utcnow())
-
-
-#@app.route("/dept/<dnumber>/update", methods=['GET', 'POST'])
-#@login_required
-#def update_dept(dnumber):
-#    dept = Department.query.get_or_404(dnumber)
-#    currentDept = dept.dname
-
-#    form = DeptUpdateForm()
-#    if form.validate_on_submit():          # notice we are are not passing the dnumber from the form
-#        if currentDept !=form.dname.data:
-#            dept.dname=form.dname.data
-#        dept.mgr_ssn=form.mgr_ssn.data
-#        dept.mgr_start=form.mgr_start.data
-#        db.session.commit()
-#        flash('Your department has been updated!', 'success')
-#        return redirect(url_for('dept', dnumber=dnumber))
-#    elif request.method == 'GET':              # notice we are not passing the dnumber to the form
-
-#        form.dnumber.data = dept.dnumber
-#        form.dname.data = dept.dname
-#        form.mgr_ssn.data = dept.mgr_ssn
-#        form.mgr_start.data = dept.mgr_start
-#    return render_template('create_dept.html', title='Update Department',
-#                           form=form, legend='Update Department')
+        #hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        #user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        #db.session.add(user)
+        #db.session.commit()
+#        flash('Your order has been placed!', 'success')
+#        return redirect(url_for('home.html'))
+#    home()
 
 
 
 
-#@app.route("/dept/<dnumber>/delete", methods=['POST'])
-#@login_required
-#def delete_dept(dnumber):
-#    dept = Department.query.get_or_404(dnumber)
-#    db.session.delete(dept)
-#    db.session.commit()
-#    flash('The department has been deleted!', 'success')
-#    return redirect(url_for('home'))
+
+
+

@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div>
+        <section class="contact-info">
+            <h2 class="contact-info-heading">
+                <span>Contact Information</span>
+            </h2>
+            <div class="form-group">
+                {{ form.email.label(class="form-control-label") }}
+                {% if form.email.errors %}
+                    {{ form.email(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.email(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.mobilePhone.label(class="form-control-label") }}
+                {% if form.mobilePhone.errors %}
+                    {{ form.mobilePhone(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.mobilePhone.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.mobilePhone(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
+        </section>
+    </div>
+    <div>
+        <section class="payment-info">
+            <h2 class="payment-info-heading">
+                <span>Payment Information</span>
+            </h2>
+        </section>
+    </div>
+    <div class="form-group">
+        {{ form.submit(class="btn btn-lg btn-block btn-primary", style="background-color: #ffe000; color: #000000;") }}
+    </div>
+</form>
+
+
+<!--<div class="txt-heading">
+    class="btn btn-lg btn-block btn-primary", type="button", style="background-color: #ffe000; color: #000000;"
+    <a href="{{ url_for('home') }}" >Place Your Order</a>
+</div>-->
+
+
+
+{% endblock content %}

@@ -4,6 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 </head>
 <body>
 	<div>
@@ -19,11 +20,16 @@
 	</div>
 
 	<div id="shopping-cart">
-		<div class="txt-heading">Shopping Cart</div>		
+		<div class="txt-heading" >Shopping Cart</div>			
+	
 		{% if 'cart_item' in session %}
 			<a id="btnEmpty" href="{{ url_for('empty_cart') }}">Empty Cart</a>
+			<div class="txt-heading" style="float: right;">
+				<a href="{{ url_for('checkout') }}" class="btn btn-lg btn-block btn-primary" type="button" style="background-color: #ffe000; color: #000000;">Checkout</a>
+			</div>
 			<table class="tbl-cart" cellpadding="10" cellspacing="1">
 			<tbody>
+				{% set ID = namespace(value = 0) %}
 				{% set TotalPrice = namespace(value = 0) %}
 				{% for item in session['cart_item'] %}
 					{% set ItemImage = item['ItemImage'] %}
@@ -31,19 +37,22 @@
 					{% set ItemPrice = item['ItemPrice'] %}
 					{% set Quantity = item['Quantity'] %}
 					{% set TotalPrice.value = TotalPrice.value + (ItemPrice * Quantity) %}
-					{% print(item) %}
-					{% print (TotalPrice) %}
+					{% print (item) %}
 		
-					<tr>
+					<!--id={{ ID.value }}-->
+					<tr >
 						<td><img src="/static/images/{{ item['ItemImage'] }}" class="cart-item-image" style="width:50px;height:50px;" />{{ item['ItemName'] }}</td>
-						<td style="text-align:right;"><input type="number" id="quantity" name="quantity" min="0" max="10" step="1" value="{{ Quantity }}"></td>
-						<td  style="text-align:right;">$ {{ ItemPrice }}</td>
+						<td style="text-align:right;">
+							<input onblur="update_qty_server({{ ID.value }})" type="number" id="{{ ID.value }}" name="quantity" min="1" max="10" step="1" value="{{ Quantity }}">
+						</td>
+						<td style="text-align:right;">$ {{ ItemPrice }}</td>
 						<td style="text-align:center;">
-							<a href="{{ url_for('delete_item', ItemID=item['ItemID']) }}" class="btnRemoveAction">
+							<a href="{{ url_for('delete_item', ID=ID.value) }}" class="btnRemoveAction">
 								<img src="/static/images/icon-delete.png" style="width:30px;height:30px;" alt="Remove Item" />
 							</a>
 						</td>
 					</tr>
+					{% set ID.value = ID.value + 1 %}
 
 				{% endfor %}
 
@@ -59,6 +68,7 @@
 			<div class="no-records">Your Cart is Empty</div>
 		{% endif %}
 	</div>
+	
 	<div>
 		<br/>
 		<a href="{{ url_for('home') }}" type="button" class="btn btn-primary" >Add Another Menu Item</a>
@@ -66,5 +76,28 @@
 
 </body>
 </html>
+<script type="text/javascript">
+	console.log("Hello");
+
+	function update_qty_server(ID) {
+
+		var qty = document.getElementById(String(ID)).value;
+		var data = {ID: ID, qty: qty};
+
+		console.log(data);
+
+		$.ajax({
+  			type: 'POST',
+  			url: "{{ url_for('update_qty', ID=" + ID + " ,qty=" + qty + ") }}",
+  			data: JSON.stringify(data),
+  			contentType: 'application/json',
+ 			success: function(data){
+   			// do something with the received data
+  		    }
+		});
+	}
+
+</script>
 
 {% endblock content %}
+
