@@ -3,7 +3,7 @@ import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort, Flask, session
 from flaskDemo import app, db, bcrypt
-from flaskDemo.forms import RegistrationForm, LoginForm, CheckoutForm #, UpdateAccountForm, PostForm, DeptForm,DeptUpdateForm
+from flaskDemo.forms import RegistrationForm, LoginForm, CheckoutForm, UpdateAccountForm #, PostForm, DeptForm,DeptUpdateForm
 from flaskDemo.models import User, Customer, CustomerOrder, Item, OrderLine, Payment
 from flask_login import login_user, current_user, logout_user, login_required
 from datetime import datetime
@@ -37,6 +37,7 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        print(hashed_password)
         user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
@@ -51,7 +52,12 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
+        print(form.email.data)
         user = User.query.filter_by(email=form.email.data).first()
+        print(user.password)
+        print(form.password.data)
+        print(bcrypt.generate_password_hash(form.password.data).decode('utf-8'))
+        print(bcrypt.check_password_hash(user.password, form.password.data))
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
@@ -123,7 +129,7 @@ def shoppingcart():
 #        return redirect(url_for('dept', dnumber=dnumber))
 #    elif request.method == 'GET':
 #        form.dnumber.data = dept.dnumber
-#        form.dname.data = dept.dname
+#        form.name.data = dept.dname
 #        form.mgr_ssn.data = dept.mgr_ssn
 #        form.mgr_start.data = dept.mgr_start
 #    return render_template('create_dept.html', title='Update Department',
