@@ -14,29 +14,29 @@
                 <span>Contact Information</span>
             </h2>
             <div class="form-group">
-                {{ form.email.label(class="form-control-label") }}
-                {% if form.email.errors %}
-                    {{ form.email(class="form-control form-control-lg is-invalid") }}
+                {{ form.customerEmail.label(class="form-control-label") }}
+                {% if form.customerEmail.errors %}
+                    {{ form.customerEmail(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
-                        {% for error in form.email.errors %}
+                        {% for error in form.customerEmail.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.email(class="form-control form-control-lg") }}
+                    {{ form.customerEmail(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
             <div class="form-group">
-                {{ form.mobilePhone.label(class="form-control-label") }}
-                {% if form.mobilePhone.errors %}
-                    {{ form.mobilePhone(class="form-control form-control-lg is-invalid") }}
+                {{ form.customerPhone.label(class="form-control-label") }}
+                {% if form.customerPhone.errors %}
+                    {{ form.customerPhone(class="form-control form-control-lg is-invalid") }}
                     <div class="invalid-feedback">
-                        {% for error in form.mobilePhone.errors %}
+                        {% for error in form.customerPhone.errors %}
                             <span>{{ error }}</span>
                         {% endfor %}
                     </div>
                 {% else %}
-                    {{ form.mobilePhone(class="form-control form-control-lg") }}
+                    {{ form.customerPhone(class="form-control form-control-lg") }}
                 {% endif %}
             </div>
         </section>
@@ -46,8 +46,117 @@
             <h2 class="payment-info-heading">
                 <span>Payment Information</span>
             </h2>
+            <div class="form-group">
+                {{ form.creditCardNum.label(class="form-control-label") }}
+                {% if form.creditCardNum.errors %}
+                    {{ form.creditCardNum(class="form-control form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.creditCardNum.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.creditCardNum(class="form-control form-control-lg") }}
+                {% endif %}
+            </div>
         </section>
     </div>
+    <div>
+        <section class="billing-info">
+            <h2 class="billing-info-heading">
+                <span>Billing Information</span>
+            </h2>
+            <div class="row">
+                <div class="form-group" style="margin: 10px;">
+                    {{ form.customerFirstName.label(class="form-control-label") }}
+                    {% if form.customerFirstName.errors %}
+                        {{ form.customerFirstName(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.customerFirstName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.customerFirstName(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group" style="margin: 10px;">
+                    {{ form.customerLastName.label(class="form-control-label") }}
+                    {% if form.customerLastName.errors %}
+                        {{ form.customerLastName(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.customerLastName.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.customerLastName(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group" style="margin: 10px;">
+                    {{ form.customerAddress.label(class="form-control-label") }}
+                    {% if form.customerAddress.errors %}
+                        {{ form.customerAddress(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.customerAddress.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.customerAddress(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group" style="float: left; margin: 10px;">
+                    {{ form.customerCity.label(class="form-control-label") }}
+                    {% if form.customerCity.errors %}
+                        {{ form.customerCity(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.customerCity.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.customerCity(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group" style="float: left; margin: 10px;">
+                    {{ form.customerState.label(class="form-control-label") }}
+                    {% if form.customerState.errors %}
+                        {{ form.customerState(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.customerState.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.customerState(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+
+                <div class="form-group" style="float: left; margin: 10px;">
+                    {{ form.customerZipCode.label(class="form-control-label") }}
+                    {% if form.customerZipCode.errors %}
+                        {{ form.customerZipCode(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.customerZipCode.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.customerZipCode(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </div
     <div class="form-group">
         {{ form.submit(class="btn btn-lg btn-block btn-primary", style="background-color: #ffe000; color: #000000;") }}
     </div>

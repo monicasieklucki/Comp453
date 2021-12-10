@@ -2,12 +2,11 @@ import os
 import secrets
 from PIL import Image
 from flask import render_template, url_for, flash, redirect, request, abort, Flask, session
-from flaskDemo import app, db, bcrypt
-from flaskDemo.forms import RegistrationForm, LoginForm, CheckoutForm, UpdateAccountForm #, PostForm, DeptForm,DeptUpdateForm
+from flaskDemo import app, db, bcrypt, cursor
+from flaskDemo.forms import RegistrationForm, UpdateCustomerForm, LoginForm, CheckoutForm, UpdateAccountForm #, PostForm, DeptForm,DeptUpdateForm
 from flaskDemo.models import User, Customer, CustomerOrder, Item, OrderLine, Payment
 from flask_login import login_user, current_user, logout_user, login_required
 from datetime import datetime
-
 
 @app.route("/")
 @app.route("/home")
@@ -24,9 +23,13 @@ def home():
    #return render_template('join.html', title='Join',joined_1_n=results, joined_m_n=results2)
    #return render_template('home.html', title='Home')
 
-   
 @app.route("/about")
 def about():
+
+    if not session.get('user') is None:
+        print(session['user'])
+
+    #print(session['user'])
     return render_template('about.html', title='About')
 
 
@@ -37,7 +40,6 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        print(hashed_password)
         user = User(username=form.username.data, email=form.email.data, password=hashed_password)
         db.session.add(user)
         db.session.commit()
@@ -52,13 +54,14 @@ def login():
         return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
-        print(form.email.data)
+
         user = User.query.filter_by(email=form.email.data).first()
-        print(user.password)
-        print(form.password.data)
-        print(bcrypt.generate_password_hash(form.password.data).decode('utf-8'))
-        print(bcrypt.check_password_hash(user.password, form.password.data))
+
         if user and bcrypt.check_password_hash(user.password, form.password.data):
+
+            print(user)
+            session["user"] = {  "UserID": user.id, "Username": user.username, "Email": user.email }
+
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('home'))
@@ -69,6 +72,9 @@ def login():
 
 @app.route("/logout")
 def logout():
+    if not session.get('user') is None:
+        print(session['user'])
+        session['user'].clear()
     logout_user()
     return redirect(url_for('home'))
 
@@ -106,6 +112,26 @@ def account():
     image_file = url_for('static', filename='profile_pics/' + current_user.image_file)
     return render_template('account.html', title='Account',
                            image_file=image_file, form=form)
+
+@app.route("/customer", methods=['GET', 'POST'])
+@login_required
+def customer():
+    form = UpdateCustomerForm()
+    if form.validate_on_submit():
+
+        #current_user.username = form.username.data
+        #current_user.email = form.email.data
+        #db.session.commit()
+        flash('Customer information has been updated!', 'success')
+        return redirect(url_for('customer'))
+    elif request.method == 'GET':
+        print("select query here")
+        result = cursor.execute("SELECT * FROM customer WHERE CustomerID=" + str(session['user']['UserID']))
+        
+        print(result)
+        #form.username.data = current_user.username
+        #form.email.data = current_user.email
+    return render_template('customer.html', title='Customer Information', form=form)
 
 
 
@@ -153,7 +179,7 @@ def update_qty(ID, qty):
 
 @app.route("/empty_cart")
 def empty_cart():
-    session.clear()
+    session['cart_item'].clear()
     return render_template('shoppingcart.html')
 
 
@@ -162,10 +188,7 @@ def add_item_to_cart(ItemID):
     item = Item.query.get(ItemID)
 
     print("Add to cart")
-
-    #print(item.ItemID)
-    #print(item.ItemName)
-    #print(item.Quantity)
+    print(item)
 
     if 'cart_item' in session:
         dict = {"ItemID": int(item.ItemID), "ItemName": item.ItemName, "ItemPrice": float(item.ItemPrice), "ItemImage": item.ItemImage, "Quantity": int(1), "TotalPrice": (int(1) * float(item.ItemPrice))}
@@ -174,31 +197,47 @@ def add_item_to_cart(ItemID):
     else:
         session['cart_item'] = [{"ItemID": int(item.ItemID), "ItemName": item.ItemName, "ItemPrice": float(item.ItemPrice), "ItemImage": item.ItemImage, "Quantity": int(1), "TotalPrice": (int(1) * float(item.ItemPrice))}]
 
-    #cart_item = CartItem(product=product)
-    #db.session.add(cart_item)
-    #db.session.commit()
-    #results = Item.query.all()
-
     return render_template('shoppingcart.html')
 
 
 @app.route("/checkout", methods=['GET', 'POST'])
 def checkout():
     form = CheckoutForm()
-    print(form)
-    print("I'm here!")
-    print(form.validate_on_submit())
 
     print(form.errors)
     if form.validate_on_submit():
-        print("Validated")
-        #hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        #user = User(username=form.username.data, email=form.email.data, password=hashed_password)
-        #db.session.add(user)
-        #db.session.commit()
+        print("validate form")
+        UserID = None
+        if not session.get('user') is None:
+            UserID = session['user'].UserID
+
+        customer = Customer(CustomerFirstName=form.customerFirstName.data, CustomerLastName=form.customerLastName.data, CustomerAddress=form.customerAddress.data, CustomerPhone=form.customerPhone.data, CustomerCity=form.customerCity.data, CustomerState=form.customerState.data, CustomerZipCode=form.customerZipCode.data, UserID=UserID)
+        db.session.add(customer)
+        db.session.commit()
+        print(customer.CustomerID)
+        order = CustomerOrder(OrderDate=datetime.now(), OrderStatus='Completed', CustomerID= customer.CustomerID, PaymentID=101)
+        db.session.add(order)
+        db.session.commit()
+        print(order.OrderID)
+        for item in session['cart_item']:
+            orderline = OrderLine(OrderID=order.OrderID, ItemID=item['ItemID'], Quantity=item['Quantity'])
+            db.session.add(orderline)
+        db.session.commit()
+        
         flash('Your order has been placed!', 'success')
         session['cart_item'].clear()
         return redirect(url_for('home'))
+    elif request.method == 'GET':
+        print("select query here")
+        result = cursor.execute("SELECT * FROM customer WHERE CustomerID=" + str(session['user']['UserID']))
+        if not result is None:
+            #populate fields
+            print(result)
+            print("hello")
+        #else do nothings
+        print("no customer info found")
+        print(result)
+
     return render_template('checkout.html', form=form)
 
 

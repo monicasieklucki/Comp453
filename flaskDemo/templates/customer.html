@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+
+        <form method="POST" action="" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Customer Info</legend>
+                <div class="row">
+                    <div class="form-group" style="margin: 10px;">
+                        {{ form.customerFirstName.label(class="form-control-label") }}
+                        {% if form.customerFirstName.errors %}
+                            {{ form.customerFirstName(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.customerFirstName.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.customerFirstName(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+    
+                    <div class="form-group" style="margin: 10px;">
+                        {{ form.customerLastName.label(class="form-control-label") }}
+                        {% if form.customerLastName.errors %}
+                            {{ form.customerLastName(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.customerLastName.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.customerLastName(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                </div>
+    
+                <div class="row">
+                    <div class="form-group" style="margin: 10px;">
+                        {{ form.customerAddress.label(class="form-control-label") }}
+                        {% if form.customerAddress.errors %}
+                            {{ form.customerAddress(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.customerAddress.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.customerAddress(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                </div>
+    
+                <div class="row">
+                    <div class="form-group" style="float: left; margin: 10px;">
+                        {{ form.customerCity.label(class="form-control-label") }}
+                        {% if form.customerCity.errors %}
+                            {{ form.customerCity(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.customerCity.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.customerCity(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+    
+                    <div class="form-group" style="float: left; margin: 10px;">
+                        {{ form.customerState.label(class="form-control-label") }}
+                        {% if form.customerState.errors %}
+                            {{ form.customerState(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.customerState.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.customerState(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+    
+                    <div class="form-group" style="float: left; margin: 10px;">
+                        {{ form.customerZipCode.label(class="form-control-label") }}
+                        {% if form.customerZipCode.errors %}
+                            {{ form.customerZipCode(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.customerZipCode.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.customerZipCode(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                </div>
+            <fieldset class="form-group">
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+{% endblock content %}

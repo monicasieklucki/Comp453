@@ -4,7 +4,7 @@ from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField, DateField, SelectField, HiddenField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError,Regexp
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-from flaskDemo import db
+from flaskDemo import db, cursor
 from flaskDemo.models import User #, Department, getDepartment, getDepartmentFactory
 from wtforms.fields.html5 import DateField
 
@@ -44,8 +44,18 @@ class CheckoutForm(FlaskForm):
         if not field.data.isdecimal():
             raise ValidationError('Mobile number cannot contain letters.')
 
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    mobilePhone = StringField('Mobile' , validators=[DataRequired(), Length(10), only_digits])
+    customerEmail = StringField('Email', validators=[DataRequired(), Email()])
+    customerPhone = StringField('Mobile' , validators=[DataRequired(), Length(10), only_digits])
+
+
+    creditCardNum = StringField('Credit Card Number', validators=[DataRequired(), Length(16), only_digits])
+
+    customerFirstName = StringField('First Name', validators=[DataRequired()])
+    customerLastName = StringField('Last Name', validators=[DataRequired()])
+    customerAddress = StringField('Address', validators=[DataRequired()])
+    customerCity = StringField('City', validators=[DataRequired()])
+    customerState = StringField('State', validators=[DataRequired(), Length(2)])
+    customerZipCode = StringField('Zip Code', validators=[DataRequired(), Length(5), only_digits])
 
 
     submit = SubmitField('Place Your Order')
@@ -71,6 +81,22 @@ class UpdateAccountForm(FlaskForm):
             if user:
                 raise ValidationError('That email is taken. Please choose a different one.')
 
+class UpdateCustomerForm(FlaskForm):
+    def only_digits(form, field):
+        if not field.data.isdecimal():
+            raise ValidationError('Mobile number cannot contain letters.')
+            
+    customerPhone = StringField('Mobile' , validators=[DataRequired(), Length(10), only_digits])
+    customerFirstName = StringField('First Name', validators=[DataRequired()])
+    customerLastName = StringField('Last Name', validators=[DataRequired()])
+    customerAddress = StringField('Address', validators=[DataRequired()])
+    customerCity = StringField('City', validators=[DataRequired()])
+    customerState = StringField('State', validators=[DataRequired(), Length(2)])
+    customerZipCode = StringField('Zip Code', validators=[DataRequired(), Length(5), only_digits])
+
+
+
+    submit = SubmitField('Update')
 
 #class UpdateAccountForm(FlaskForm):
 #    username = StringField('Username',
