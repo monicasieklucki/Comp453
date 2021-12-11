@@ -1,11 +1,29 @@
 {% extends "layout.html" %}
 {% block content %}
+
+
     <div class="content-section">
 
         <form method="POST" action="" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
+            {{ form.customerid }}
             <fieldset class="form-group">
                 <legend class="border-bottom mb-4">Customer Info</legend>
+                <div class="row">
+                    <div class="form-group" style="margin: 10px;">
+                        {{ form.customerPhone.label(class="form-control-label") }}
+                        {% if form.customerPhone.errors %}
+                            {{ form.customerPhone(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.customerPhone.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.customerPhone(class="form-control form-control-lg") }}
+                        {% endif %}
+                    </div>
+                </div>
                 <div class="row">
                     <div class="form-group" style="margin: 10px;">
                         {{ form.customerFirstName.label(class="form-control-label") }}
@@ -97,7 +115,8 @@
                 </div>
             <fieldset class="form-group">
             <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
+                {{ form.submit(class="btn btn-outline-info", style="float:left; margin:10px;") }}
+                <a href="{{ url_for('delete_customer', CustomerID=form.customerId.data) }}" type="button" class="btn btn-danger" style="float: left;margin:10px;">Delete</a>
             </div>
         </form>
     </div>

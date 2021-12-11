@@ -113,24 +113,55 @@ def account():
     return render_template('account.html', title='Account',
                            image_file=image_file, form=form)
 
+
+@app.route("/delete_customer/<CustomerID>/delete", methods=['GET','POST'])
+def delete_customer(CustomerID):
+    customer = Customer.query.get_or_404(CustomerID)
+    db.session.delete(customer)
+    db.session.commit()
+    flash('Customer information has been deleted!', 'success')
+    return redirect(url_for('customer'))
+
 @app.route("/customer", methods=['GET', 'POST'])
 @login_required
 def customer():
     form = UpdateCustomerForm()
+    db.session.flush()
     if form.validate_on_submit():
-
-        #current_user.username = form.username.data
-        #current_user.email = form.email.data
-        #db.session.commit()
-        flash('Customer information has been updated!', 'success')
+        print(form.customerId.data)
+        customer_update = Customer.query.filter_by(CustomerID=form.customerId.data).first()
+        if not customer_update is None:
+            print(customer_update)
+            setattr(customer_update, 'CustomerFirstName', form.customerFirstName.data)
+            setattr(customer_update, 'CustomerLastName', form.customerLastName.data)
+            setattr(customer_update, 'CustomerPhone', form.customerPhone.data)
+            setattr(customer_update, 'CustomerAddress', form.customerAddress.data)
+            setattr(customer_update, 'CustomerCity', form.customerCity.data)
+            setattr(customer_update, 'CustomerState', form.customerState.data)
+            setattr(customer_update, 'CustomerZipCode', form.customerZipCode.data)   
+            db.session.add(customer_update) 
+            db.session.commit()
+            flash('Customer information has been updated!', 'success')
         return redirect(url_for('customer'))
     elif request.method == 'GET':
-        print("select query here")
-        result = cursor.execute("SELECT * FROM customer WHERE CustomerID=" + str(session['user']['UserID']))
-        
-        print(result)
-        #form.username.data = current_user.username
-        #form.email.data = current_user.email
+        print("get")
+        if session.get('user'):
+            cursor.execute("SELECT * FROM customer WHERE UserID=" + str(session['user']['UserID']))
+            customer = cursor.fetchone()
+            print(customer)
+            if not customer is None:
+                #populate fields
+                #print(customer)
+                form.customerId.data = customer["CustomerID"]
+                form.customerFirstName.data = customer["CustomerFirstName"]
+                form.customerLastName.data = customer["CustomerLastName"]
+                form.customerPhone.data = customer["CustomerPhone"]
+            
+                form.customerAddress.data = customer["CustomerAddress"]
+                form.customerCity.data = customer["CustomerCity"]
+                form.customerState.data = customer["CustomerState"]
+                form.customerZipCode.data = customer["CustomerZipCode"]
+
     return render_template('customer.html', title='Customer Information', form=form)
 
 
@@ -167,7 +198,7 @@ def delete_item(ID):
     session['cart_item'].pop(int(ID))
 
     if len(session['cart_item']) == 0:
-        session.clear()
+        session['cart_item'].clear()
     return render_template('shoppingcart.html')
 
 @app.route("/update_qty/<ID>/update/<qty>", methods=['POST'])
@@ -209,7 +240,7 @@ def checkout():
         print("validate form")
         UserID = None
         if not session.get('user') is None:
-            UserID = session['user'].UserID
+            UserID = session['user']['UserID']
 
         customer = Customer(CustomerFirstName=form.customerFirstName.data, CustomerLastName=form.customerLastName.data, CustomerAddress=form.customerAddress.data, CustomerPhone=form.customerPhone.data, CustomerCity=form.customerCity.data, CustomerState=form.customerState.data, CustomerZipCode=form.customerZipCode.data, UserID=UserID)
         db.session.add(customer)
@@ -228,15 +259,32 @@ def checkout():
         session['cart_item'].clear()
         return redirect(url_for('home'))
     elif request.method == 'GET':
-        print("select query here")
-        result = cursor.execute("SELECT * FROM customer WHERE CustomerID=" + str(session['user']['UserID']))
-        if not result is None:
-            #populate fields
-            print(result)
-            print("hello")
-        #else do nothings
-        print("no customer info found")
-        print(result)
+        print(session['user'])
+        print(session.get('user'))
+        print(type(session.get('user')))
+        if session.get('user'):
+            cursor.execute("SELECT * FROM customer WHERE UserID=" + str(session['user']['UserID']))
+            customer = cursor.fetchone()
+            print(customer)
+            cursor.execute("SELECT * FROM user WHERE id=" + str(session['user']['UserID']))
+            user = cursor.fetchone()
+            if not customer is None:
+                #populate fields
+                print(customer)
+                form.customerFirstName.data = customer["CustomerFirstName"]
+                form.customerLastName.data = customer["CustomerLastName"]
+                form.customerPhone.data = customer["CustomerPhone"]
+            
+                form.customerAddress.data = customer["CustomerAddress"]
+                form.customerCity.data =customer["CustomerCity"]
+                form.customerState.data = customer["CustomerState"]
+                form.customerZipCode.data = customer["CustomerZipCode"]
+
+            if not user is None:
+                form.customerEmail.data = user["email"]
+
+            #else do nothings
+            print("no customer info found")
 
     return render_template('checkout.html', form=form)
 

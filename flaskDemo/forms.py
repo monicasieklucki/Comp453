@@ -47,7 +47,6 @@ class CheckoutForm(FlaskForm):
     customerEmail = StringField('Email', validators=[DataRequired(), Email()])
     customerPhone = StringField('Mobile' , validators=[DataRequired(), Length(10), only_digits])
 
-
     creditCardNum = StringField('Credit Card Number', validators=[DataRequired(), Length(16), only_digits])
 
     customerFirstName = StringField('First Name', validators=[DataRequired()])
@@ -85,16 +84,14 @@ class UpdateCustomerForm(FlaskForm):
     def only_digits(form, field):
         if not field.data.isdecimal():
             raise ValidationError('Mobile number cannot contain letters.')
-            
-    customerPhone = StringField('Mobile' , validators=[DataRequired(), Length(10), only_digits])
+    customerId = IntegerField('Id')
+    customerPhone = StringField('Mobile', validators=[DataRequired(), Length(10), only_digits])
     customerFirstName = StringField('First Name', validators=[DataRequired()])
     customerLastName = StringField('Last Name', validators=[DataRequired()])
     customerAddress = StringField('Address', validators=[DataRequired()])
     customerCity = StringField('City', validators=[DataRequired()])
     customerState = StringField('State', validators=[DataRequired(), Length(2)])
     customerZipCode = StringField('Zip Code', validators=[DataRequired(), Length(5), only_digits])
-
-
 
     submit = SubmitField('Update')
 
